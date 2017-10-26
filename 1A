@@ -1,6 +1,13 @@
+package project1;
+
+/**
+ *
+ * @author mtsch
+ */
 import java.util.*;
 import java.io.FileNotFoundException;
 import java.io.File;
+import java.io.*;
 
 public class Main {
 
@@ -13,17 +20,21 @@ public class Main {
         //declare ArrayList and initialize (final product)
         ArrayList<Integer> list = new ArrayList<>();
         //and int which will be the total of all runs
-        ArrayList<Integer> listRunsDnCount = new ArrayList<>();
+
         ArrayList<Integer> listRunsCount = new ArrayList<>();
 
         try {
-            ArrayList<Integer> fileRead = read("p01-int.txt");
+            ArrayList<Integer> fileRead = read("p01-in.txt");
             ArrayList<Integer> listRunsUpCount = runCount(fileRead, 1);
+            ArrayList<Integer> listRunsDnCount = runCount(fileRead, 0);
+            ArrayList<Integer> mergeList = merge(listRunsUpCount, listRunsDnCount);
+            int total = sum(mergeList);
+            writeFile(total, mergeList);
 
-            System.out.println("here" + fileRead.toString());
         } catch (FileNotFoundException ex) {
             System.out.println("Test!");
-            //add instructions for exception handling here
+            System.exit(-1);
+
         }
     }
 
@@ -47,7 +58,7 @@ public class Main {
             int k = 0;
 
             for (int i = 0; i < list.size(); i++) {
-                while (i < list.size() - 1 && list.get(i) < list.get(i + 1)) {
+                while (i < list.size() - 1 && list.get(i) <= list.get(i + 1)) {
                     i++;
                     k++;
                 }
@@ -55,25 +66,51 @@ public class Main {
                 if (k != 0) {
                     count.set(k, count.get(k) + 1);
                     k = 0;
-                } else {
-                    while (i < list.size() - 1 && list.get(i) > list.get(i + 1)) {
-                        i++;
-                    }
+                }
+            }
+        } else {
+            int k = 0;
+            for (int i = 0; i < list.size(); i++) {
+                while (i < list.size() - 1 && list.get(i) >= list.get(i + 1)) {
+                    i++;
                     k++;
+                }
+
+                if (k != 0) {
+                    count.set(k, count.get(k) + 1);
+                    k = 0;
                 }
             }
         }
+
         return count;
     }
 
-    private ArrayList<Integer> merge(ArrayList<Integer> listRunsUpCount, ArrayList<Integer> listRunsDnCount, ArrayList<Integer> list) {
+    private ArrayList<Integer> merge(ArrayList<Integer> listRunsUpCount, ArrayList<Integer> listRunsDnCount) {
         int temp;
-        ArrayList<Integer> mergeList = new ArrayList<>();
-        for (int i = 0; i < list.size(); i++) {
+        ArrayList<Integer> mergeList = new ArrayList<Integer>();
+        for (int i = 0; i < listRunsUpCount.size(); i++) {
             temp = listRunsUpCount.get(i) + listRunsDnCount.get(i);
-            mergeList.set(i, temp);
+            mergeList.add(temp);
         }
         return mergeList;
     }
-    
+
+    private void writeFile(int sum, ArrayList<Integer> list) throws FileNotFoundException {
+
+        PrintWriter out = new PrintWriter("p01-runs.txt");
+        out.println("runs_total, " + sum);
+        for (int i = 1; i < list.size(); i++) {
+            out.println("runs_" + i + " " + list.get(i));
+        }
+        out.close();
+    }//end writeFile
+
+    private int sum(ArrayList<Integer> list) {
+        int sum = 0;
+        for (Integer x : list) {
+            sum += x;
+        }
+        return sum;
+    }//end sum method
 }
